@@ -25,7 +25,7 @@
 ### Installazione Rapida
 ```bash
 # 1. Clona il repository
-git clone https://github.com/username/uma-tesserini.git
+git clone https://github.com/niccostantini/uma-tesserini.git
 cd uma-tesserini
 
 # 2. Installa Node.js (se non è installato globalmente)
