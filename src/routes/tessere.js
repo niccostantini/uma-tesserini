@@ -67,7 +67,7 @@ router.get('/:id', (req, res) => {
 
   const usi = db.prepare(`
     SELECT ev.id as evento_id, ev.nome, ev.data,
-           EXISTS(SELECT 1 FROM redenzioni r WHERE r.tesserino_id = te.id AND r.evento_id = ev.id AND r.esito='ok') AS redento
+           EXISTS(SELECT 1 FROM redenzioni r WHERE r.tesserino_id = te.id AND r.evento_id = ev.id AND r.esito='ok' AND r.annullata=0) AS redento
     FROM eventi ev CROSS JOIN (SELECT ? AS id) te
   `).all(id);
 

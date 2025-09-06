@@ -145,6 +145,15 @@
             background: #c82333;
         }
         
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
         .alert {
             padding: 1rem;
             border-radius: 8px;
@@ -802,6 +811,14 @@
                 <h2>📋 Ultime Redenzioni</h2>
                 <button id="loadRedBtn" class="btn-secondary">Carica Redenzioni</button>
                 <div id="redenzioniResult"></div>
+            </div>
+            
+            <!-- Annulla Redenzioni Section -->
+            <div class="card">
+                <h2>❌ Annulla Redenzioni</h2>
+                <p><small>Annulla redenzioni degli ultimi 7 giorni in caso di errore</small></p>
+                <button id="loadAnnullabiliBtn" class="btn-warning">Carica Redenzioni Annullabili</button>
+                <div id="annullabiliResult"></div>
             </div>
         </div>
     </div>

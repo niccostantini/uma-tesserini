@@ -12,6 +12,8 @@
 ## ✨ Caratteristiche
 
 - 🎫 **Gestione Tessere**: Creazione, verifica e revoca con QR code sicuri HMAC
+- ↩️ **Annullamento Redenzioni**: Possibilità di annullare redenzioni errate (ultimi 7 giorni)
+- 📊 **Report Accurati**: Incassi calcolati solo su biglietti effettivamente utilizzati
 - 📱 **PWA Installabile**: App nativa su desktop e mobile
 - 🌐 **100% Offline**: Zero dipendenze esterne dopo l'installazione
 - 🔧 **Setup Automatico**: Configurazione zero-config al primo avvio
@@ -65,6 +67,24 @@ npm start
 - **Visualizza**: Lista tessere con filtri
 - **Importa CSV**: Caricamento batch
 - **Gestione**: Revoca tessere, controlli
+- **Annulla Redenzioni**: Correggi errori di convalida (max 7 giorni)
+
+### ↩️ Annullamento Redenzioni
+
+**Nuova funzionalità** per correggere errori di convalida:
+
+1. **Accesso**: Sezione "Gestione Redenzioni" nell'interfaccia
+2. **Visualizza**: Ultime redenzioni annullabili (7 giorni)
+3. **Annulla**: Seleziona redenzione + motivo + conferma
+4. **Effetti**: 
+   - Tessera ridiventa utilizzabile per quell'evento
+   - Report aggiornati automaticamente
+   - Tracciabilità completa dell'operazione
+
+**Casi d'uso:**
+- Scansione accidentale multipla
+- Errore operatore durante convalida
+- Test di sistema da correggere
 
 ## 💰 Prezzi
 
@@ -147,9 +167,12 @@ curl -X POST http://localhost:5173/qr/verify \
 - `POST /tessere/nuovo` - Crea tessera
 - `POST /vendite` - Registra vendita
 - `GET /report/giornata` - Report giornaliero
+- `GET /redenzioni/annullabili` - Lista redenzioni annullabili
+- `POST /redenzioni/:id/annulla` - Annulla redenzione specifica
 
-## 🔄 Backup
+## 🔄 Database e Manutenzione
 
+### Backup Manuale
 ```bash
 # Backup database (file singolo)
 cp uma.db backup-$(date +%Y%m%d).db
@@ -157,6 +180,25 @@ cp uma.db backup-$(date +%Y%m%d).db
 # Ripristino  
 cp backup-20240101.db uma.db
 ```
+
+### 🛠️ Script Manutenzione Database
+```bash
+# Ricrea completamente il database (con backup automatico)
+node recreate_db.js --force
+
+# Mostra aiuto
+node recreate_db.js --help
+
+# Corregge i prezzi per report incassi corretti
+node fix_pricing.js
+```
+
+**Utile in caso di:**
+- Corruzione database (errori disk I/O)
+- Problemi con file WAL/SHM
+- Reset completo per testing
+- Risoluzione errori SQLite
+- **Incassi sbagliati nei report** (usa `fix_pricing.js`)
 
 ## 🛠️ Script Disponibili
 

@@ -16,11 +16,26 @@ const { DB_CONFIG } = require('./config/constants');
 const dbPath = dbConfig.path;
 const db = new Database(dbPath);
 
-// Configurazione pragma per ottimizzazioni
-db.pragma(`foreign_keys = ${DB_CONFIG.PRAGMA_FOREIGN_KEYS}`);
-db.pragma(`journal_mode = ${DB_CONFIG.PRAGMA_JOURNAL_MODE}`);
-db.pragma(`synchronous = ${DB_CONFIG.PRAGMA_SYNCHRONOUS}`);
-db.pragma(`busy_timeout = ${DB_CONFIG.PRAGMA_BUSY_TIMEOUT}`);
+// Configurazione pragma per ottimizzazioni (con gestione errori)
+try {
+  db.pragma(`foreign_keys = ${DB_CONFIG.PRAGMA_FOREIGN_KEYS}`);
+  
+  // Verifica se il database è già in modalità WAL prima di impostarla
+  const currentJournalMode = db.pragma('journal_mode', { simple: true });
+  if (currentJournalMode !== DB_CONFIG.PRAGMA_JOURNAL_MODE.toLowerCase()) {
+    db.pragma(`journal_mode = ${DB_CONFIG.PRAGMA_JOURNAL_MODE}`);
+  }
+  
+  db.pragma(`synchronous = ${DB_CONFIG.PRAGMA_SYNCHRONOUS}`);
+  db.pragma(`busy_timeout = ${DB_CONFIG.PRAGMA_BUSY_TIMEOUT}`);
+  
+  if (server.env === 'development') {
+    console.log('✅ Configurazione database completata');
+  }
+} catch (error) {
+  console.error('⚠️ Errore configurazione database pragma:', error.message);
+  // Continua l'esecuzione anche se alcuni pragma falliscono
+}
 
 // Logging per ambiente di sviluppo
 if (server.env === 'development') {

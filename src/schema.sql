@@ -52,11 +52,16 @@ CREATE TABLE IF NOT EXISTS redenzioni(
   evento_id TEXT NOT NULL REFERENCES eventi(id),
   timestamp TEXT NOT NULL DEFAULT (datetime('now')),
   operatore TEXT NOT NULL,
-  esito TEXT NOT NULL CHECK (esito IN ('ok','duplice_tentativo','firma_non_valida','revocato'))
+  esito TEXT NOT NULL CHECK (esito IN ('ok','duplice_tentativo','firma_non_valida','revocato')),
+  annullata INTEGER NOT NULL DEFAULT 0,
+  annullata_timestamp TEXT,
+  annullata_operatore TEXT,
+  annullata_motivo TEXT
 );
 
--- Vincolo: una sola redenzione OK per tesserino+evento
-CREATE UNIQUE INDEX IF NOT EXISTS ux_red_ok ON redenzioni(tesserino_id, evento_id) WHERE esito='ok';
+-- Vincolo: una sola redenzione OK non annullata per tesserino+evento
+-- Le redenzioni annullate non bloccano nuove redenzioni
+CREATE UNIQUE INDEX IF NOT EXISTS ux_red_ok ON redenzioni(tesserino_id, evento_id) WHERE esito='ok' AND annullata=0;
 
 -- Revoche tesserini
 CREATE TABLE IF NOT EXISTS revoche (
@@ -66,3 +71,11 @@ CREATE TABLE IF NOT EXISTS revoche (
   operatore TEXT NOT NULL,
   timestamp TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Tariffe di default
+INSERT OR IGNORE INTO tariffe (categoria, prezzo) VALUES 
+('studente', 9.0),
+('docente', 5.0),
+('strumentista', 9.0),
+('urbinate_u18_o70', 15.0),
+('altro', 20.0);

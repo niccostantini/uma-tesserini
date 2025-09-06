@@ -34,6 +34,7 @@ function setupEventListeners() {
     document.getElementById('statoForm').addEventListener('submit', handleStatoTessera);
     document.getElementById('loadReportBtn').addEventListener('click', loadReport);
     document.getElementById('loadRedBtn').addEventListener('click', loadRedenzioni);
+    document.getElementById('loadAnnullabiliBtn').addEventListener('click', loadAnnullabili);
     
     // Modal event listeners
     document.getElementById('revocaForm').addEventListener('submit', handleRevoca);
@@ -112,6 +113,9 @@ function showMainInterface() {
     loginSection.classList.add('hidden');
     mainInterface.classList.remove('hidden');
     userInfo.textContent = `Operatore: ${currentUser.name}`;
+    
+    // Load eventi when showing main interface
+    loadEventi();
     
     // Setup navigation
     setupNavigation();
@@ -378,6 +382,7 @@ async function loadRedenzioni() {
                         <th>Evento</th>
                         <th>Operatore</th>
                         <th>Esito</th>
+                        <th>Stato</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -392,6 +397,12 @@ async function loadRedenzioni() {
                                     ${r.esito}
                                 </span>
                             </td>
+                            <td>
+                                ${r.annullata ? 
+                                    `<span class="status-badge status-error">❌ Annullata</span><br><small>${r.annullata_operatore} - ${new Date(r.annullata_timestamp).toLocaleString('it-IT')}</small>` : 
+                                    `<span class="status-badge status-success">✅ Attiva</span>`
+                                }
+                            </td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -403,6 +414,112 @@ async function loadRedenzioni() {
     } catch (error) {
         showAlert(`Errore caricamento redenzioni: ${error.message}`, 'error', resultContainer);
     }
+}
+
+// Load redenzioni annullabili
+async function loadAnnullabili() {
+    const resultContainer = document.getElementById('annullabiliResult');
+    
+    try {
+        const result = await apiCall('GET', '/redenzioni/annullabili');
+        const redenzioni = result.redenzioni;
+        
+        if (redenzioni.length === 0) {
+            showAlert('Nessuna redenzione annullabile trovata (ultimi 7 giorni)', 'info', resultContainer);
+            return;
+        }
+        
+        const tableHtml = `
+            <div style="margin-bottom: 1rem;">
+                <div class="alert-info">
+                    <strong>⚠️ Attenzione:</strong> Puoi annullare solo redenzioni degli ultimi 7 giorni.<br>
+                    <small>Trovate ${redenzioni.length} redenzioni annullabili</small>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Persona</th>
+                        <th>Evento</th>
+                        <th>Operatore</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${redenzioni.map(r => `
+                        <tr>
+                            <td>${new Date(r.timestamp).toLocaleString('it-IT')}</td>
+                            <td>
+                                <strong>${r.persona_nome}</strong><br>
+                                <small style="color: #666;">${r.categoria}</small>
+                            </td>
+                            <td>${r.evento_nome}</td>
+                            <td>${r.operatore}</td>
+                            <td>
+                                <button class="btn-danger btn-small annulla-redenzione-btn" 
+                                        data-redenzione-id="${r.id}" 
+                                        data-persona-nome="${r.persona_nome}" 
+                                        data-evento-nome="${r.evento_nome}">
+                                    ❌ Annulla
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        resultContainer.innerHTML = tableHtml;
+        
+        // Setup event listeners for annulla buttons
+        setupAnnullaButtons();
+        
+    } catch (error) {
+        showAlert(`Errore caricamento redenzioni: ${error.message}`, 'error', resultContainer);
+    }
+}
+
+// Setup event listeners for annulla buttons
+function setupAnnullaButtons() {
+    const buttons = document.querySelectorAll('.annulla-redenzione-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const redenzioneId = e.target.dataset.redenzioneId;
+            const personaNome = e.target.dataset.personaNome;
+            const eventoNome = e.target.dataset.eventoNome;
+            
+            // Chiedi conferma
+            const motivo = prompt(`❌ Annullare la redenzione di ${personaNome} per l'evento "${eventoNome}"?\n\nInserisci il motivo dell'annullamento:`);
+            
+            if (!motivo) {
+                return; // User cancelled
+            }
+            
+            try {
+                // Disable button during request
+                e.target.disabled = true;
+                e.target.textContent = '🔄 Annullando...';
+                
+                await apiCall('POST', `/redenzioni/${redenzioneId}/annulla`, {
+                    motivo: motivo,
+                    operatore: currentUser.name
+                });
+                
+                showAlert('✅ Redenzione annullata con successo', 'success');
+                
+                // Reload the list
+                loadAnnullabili();
+                
+            } catch (error) {
+                showAlert(`❌ Errore annullamento: ${error.message}`, 'error');
+                
+                // Re-enable button on error
+                e.target.disabled = false;
+                e.target.textContent = '❌ Annulla';
+            }
+        });
+    });
 }
 
 // Utility functions
@@ -1170,6 +1287,11 @@ async function handleImportCSV(formId, endpoint, fileInputId) {
         
         showAlert(message, result.errori?.length ? 'info' : 'success', resultContainer);
         form.reset();
+        
+        // Reload eventi if this was an events import
+        if (endpoint === '/import/eventi') {
+            loadEventi();
+        }
         
     } catch (error) {
         showAlert(`❌ Errore import: ${error.message}`, 'error', resultContainer);

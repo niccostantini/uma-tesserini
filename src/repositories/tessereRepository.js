@@ -76,11 +76,13 @@ class TessereRepository {
     if (!tessera) return null;
     
     // Ottieni gli eventi e stato di redenzione per questo tesserino
+    // Una redenzione è considerata valida solo se non è stata annullata
     const eventi = selectMany(`
       SELECT ev.id as evento_id, ev.nome, ev.data,
              EXISTS(
                SELECT 1 FROM redenzioni r 
-               WHERE r.tesserino_id = ? AND r.evento_id = ev.id AND r.esito = 'ok'
+               WHERE r.tesserino_id = ? AND r.evento_id = ev.id 
+                 AND r.esito = 'ok' AND r.annullata = 0
              ) AS redento
       FROM eventi ev
     `, [id]);
