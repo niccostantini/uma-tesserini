@@ -25,8 +25,8 @@
 ### Installazione Rapida
 ```bash
 # 1. Clona il repository
-git clone https://github.com/username/uma-festival.git
-cd uma-festival
+git clone https://github.com/username/uma-tesserini.git
+cd uma-tesserini
 
 # 2. Installa dipendenze
 npm install
