@@ -1,0 +1,53 @@
+{
+  "name": "uma-festival",
+  "version": "1.0.0",
+  "description": "🎵 Sistema di cassa e verifica QR per festival UMA - PWA installabile e completamente offline",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "setup": "node -e \"require('./src/setup').runSetup()\"",
+    "demo": "LOAD_DEMO=1 node src/server.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.2.2",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
+    "pino": "^8.16.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "festival",
+    "tesserini",
+    "qr",
+    "hmac",
+    "offline",
+    "pwa",
+    "progressive-web-app",
+    "sqlite",
+    "express",
+    "nodejs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/uma-festival.git"
+  },
+  "homepage": "https://github.com/username/uma-festival#readme",
+  "bugs": {
+    "url": "https://github.com/username/uma-festival/issues"
+  },
+  "author": {
+    "name": "UMA Festival Team"
+  },
+  "license": "MIT"
+}

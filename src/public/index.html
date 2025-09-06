@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMA Festival - Cassa</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Sistema di cassa e verifica QR per il festival UMA">
+    <meta name="theme-color" content="#007aff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="UMA Festival">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicons -->
+    <link rel="icon" href="/icons/uma-icon-192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/uma-icon-192.png">
+    
+    <!-- iOS Splash Screen Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: #1d1d1f;
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            
+            #visualizzaPage, #creaPage, #importaPage {
+                color:black;
+            }
+            
+        }
+        
+        .header h1 {
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .user-info {
+            text-align: center;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            border-bottom: 2px solid #007aff;
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d1d1d6;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+        
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #d1d1d6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .tessera-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #007aff;
+        }
+        
+        .evento-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evento-item.redento {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #d1d1d6;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-error {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .status-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #1d1d1f;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            color: #666;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            width: auto;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+        
+        .qr-display {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #d1d1d6;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 1rem 0;
+        }
+        
+        /* Navigation styles */
+        .navbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #d1d1d6;
+            color:black;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: white;
+            color: #007aff;
+            border: 2px solid #007aff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            width: auto;
+        }
+        
+        .nav-btn:hover {
+            background: #007aff;
+            color: white;
+        }
+        
+        .nav-btn.active {
+            background: #007aff;
+            color: white;
+        }
+        
+        /* Page styles */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Form grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #d1d1d6;
+            margin-bottom: 1rem;
+        }
+        
+        .tab-btn {
+            background: none;
+            color: #545b62;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            width: auto;
+            font-weight: 600;
+        }
+        
+        .tab-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .tab-btn.active {
+            border-bottom-color: #007aff;
+            color: #007aff;
+        }
+        
+        .tab-content {
+            display: none;
+            color: black;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Table responsive */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        .table th {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .table th:hover {
+            background: #e9ecef;
+        }
+        
+        .sort-indicator {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* File upload */
+        .file-upload {
+            border: 2px dashed #d1d1d6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            transition: border-color 0.2s;
+        }
+        
+        .file-upload:hover {
+            border-color: #007aff;
+        }
+        
+        .file-upload.dragover {
+            border-color: #007aff;
+            background: #f0f8ff;
+        }
+        
+        /* Search box */
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: end;
+        }
+        
+        .search-box input {
+            flex: 1;
+        }
+        
+        .search-box button {
+            width: auto;
+            padding: 0.75rem 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🎵 UMA Festival - Cassa</h1>
+            <div class="user-info" id="userInfo">
+                Non autenticato
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navbar" id="navbar" style="display: none;">
+            <div class="container">
+                <nav class="nav-menu">
+                    <button class="nav-btn active" data-page="main">💱 Cassa</button>
+                    <button class="nav-btn" data-page="visualizza">📝 Visualizza Tesserini</button>
+                    <button class="nav-btn" data-page="crea">➕ Crea Tesserino</button>
+                    <button class="nav-btn" data-page="importa">📊 Importa CSV</button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Visualizza Tesserini Page -->
+        <div id="visualizzaPage" class="page">
+            <div class="card">
+                <h2>📝 Visualizza Tesserini</h2>
+                
+                <div class="search-box">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label for="searchTessere">Cerca per nome o ID tesserino:</label>
+                        <input type="text" id="searchTessere" placeholder="Inizia a digitare per filtrare...">
+                    </div>
+                    <button id="clearSearchTessere" class="btn-secondary">Pulisci</button>
+                    <button id="loadTessereBtn" class="btn-success">Carica Tessere</button>
+                </div>
+                
+                <div class="table-container">
+                    <div id="tessereResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crea Tesserino Page -->
+        <div id="creaPage" class="page">
+            <div class="card">
+                <h2>➕ Crea Tesserino</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="seleziona-persona">Seleziona Persona Esistente</button>
+                    <button class="tab-btn" data-tab="nuova-persona">Inserisci Nuova Persona</button>
+                </div>
+                
+                <!-- Tab: Seleziona Persona Esistente -->
+                <div id="seleziona-persona" class="tab-content active">
+                    <div class="card" style="background: #f8f9fa; margin-bottom: 1rem;">
+                        <h4>🔍 Filtri Ricerca</h4>
+                        <form id="filtriPersoneForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="filtroNome">Nome:</label>
+                                    <input type="text" id="filtroNome" placeholder="Cerca per nome...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="filtroId">ID:</label>
+                                    <input type="text" id="filtroId" placeholder="Cerca per ID...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="filtroCategoria">Categoria:</label>
+                                    <select id="filtroCategoria">
+                                        <option value="">-- Tutte le categorie --</option>
+                                        <option value="studente">Studente</option>
+                                        <option value="docente">Docente</option>
+                                        <option value="strumentista">Strumentista</option>
+                                        <option value="urbinate_u18_o70">Urbinate/u18/o70</option>
+                                        <option value="altro">Altro</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="filtroDataNascita">Data di nascita:</label>
+                                    <input type="date" id="filtroDataNascita">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="filtroResidenza">Residenza:</label>
+                                    <input type="text" id="filtroResidenza" placeholder="Cerca per residenza...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="filtroDocVerificato">Documento:</label>
+                                    <select id="filtroDocVerificato">
+                                        <option value="">-- Tutti --</option>
+                                        <option value="true">Verificato</option>
+                                        <option value="false">Non verificato</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                                <button type="submit" class="btn-success">🔍 Cerca</button>
+                                <button type="button" id="clearFiltriBtn" class="btn-secondary">🗑️ Pulisci Filtri</button>
+                                <button type="button" id="loadAllPersoneBtn">👥 Mostra Tutti</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div id="personeList"></div>
+                    
+                    <form id="creaTesserinoForm" style="display: none;">
+                        <h3>Crea Tesserino per: <span id="selectedPersonName"></span></h3>
+                        <input type="hidden" id="selectedPersonId">
+                        
+                        <div class="form-group">
+                            <label for="expDateCrea">Data di scadenza (opzionale):</label>
+                            <input type="date" id="expDateCrea">
+                            <small style="color: #666;">Se vuoto, sarà impostata automaticamente a 1 anno da oggi</small>
+                        </div>
+                        
+                        <button type="submit" class="btn-success">Crea Tesserino</button>
+                        <button type="button" id="annullaPersona" class="btn-secondary">Annulla</button>
+                    </form>
+                    
+                    <div id="creaTesserinoResult"></div>
+                </div>
+                
+                <!-- Tab: Nuova Persona -->
+                <div id="nuova-persona" class="tab-content">
+                    <form id="nuovaPersonaForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nomePersona">Nome e Cognome *:</label>
+                                <input type="text" id="nomePersona" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="categoriaPersona">Categoria *:</label>
+                                <select id="categoriaPersona" required>
+                                    <option value="">-- Seleziona categoria --</option>
+                                    <option value="studente">Studente</option>
+                                    <option value="docente">Docente</option>
+                                    <option value="strumentista">Strumentista</option>
+                                    <option value="urbinate_u18_o70">Urbinate/u18/o70</option>
+                                    <option value="altro">Altro</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dataNascitaPersona">Data di nascita:</label>
+                                <input type="date" id="dataNascitaPersona">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="residenzaPersona">Residenza:</label>
+                                <input type="text" id="residenzaPersona">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="docVerificatoPersona" style="width: auto; margin-right: 0.5rem;">
+                                Documento verificato
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expDateNuovaPersona">Data scadenza tesserino (opzionale):</label>
+                            <input type="date" id="expDateNuovaPersona">
+                            <small style="color: #666;">Se vuoto, sarà impostata automaticamente a 1 anno da oggi</small>
+                        </div>
+                        
+                        <button type="submit" class="btn-success">Crea Persona e Tesserino</button>
+                        <button type="reset" class="btn-secondary">Reset Form</button>
+                    </form>
+                    
+                    <div id="nuovaPersonaResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Importa CSV Page -->
+        <div id="importaPage" class="page">
+            <div class="card">
+                <h2>📊 Importa CSV</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="import-persone">Persone</button>
+                    <button class="tab-btn" data-tab="import-tesserini">Tesserini</button>
+                    <button class="tab-btn" data-tab="import-eventi">Eventi</button>
+                </div>
+                
+                <!-- Tab: Import Persone -->
+                <div id="import-persone" class="tab-content active">
+                    <h3>Importa Persone da CSV</h3>
+                    <p>Formato richiesto: <code>id,nome,categoria,data_nascita,residenza,doc_verificato</code></p>
+                    <p><small>Categoria deve essere: studente, docente, strumentista, urbinate_u18_o70, altro</small></p>
+                    
+                    <form id="importPersoneForm">
+                        <div class="file-upload">
+                            <p>📁 Trascina qui il file CSV o clicca per selezionarlo</p>
+                            <input type="file" id="filePersone" accept=".csv" style="margin-top: 1rem;">
+                        </div>
+                        <button type="submit" class="btn-success">Importa Persone</button>
+                    </form>
+                    
+                    <div id="importPersoneResult"></div>
+                </div>
+                
+                <!-- Tab: Import Tesserini -->
+                <div id="import-tesserini" class="tab-content">
+                    <h3>Importa Tesserini da CSV</h3>
+                    <p>Formato richiesto: <code>id,persona_id,stato,qr_text,exp_date</code></p>
+                    <p><small>Stato deve essere: attivo, revocato</small></p>
+                    
+                    <form id="importTesseriniForm">
+                        <div class="file-upload">
+                            <p>📁 Trascina qui il file CSV o clicca per selezionarlo</p>
+                            <input type="file" id="fileTesserini" accept=".csv" style="margin-top: 1rem;">
+                        </div>
+                        <button type="submit" class="btn-success">Importa Tesserini</button>
+                    </form>
+                    
+                    <div id="importTesseriniResult"></div>
+                </div>
+                
+                <!-- Tab: Import Eventi -->
+                <div id="import-eventi" class="tab-content">
+                    <h3>Importa Eventi da CSV</h3>
+                    <p>Formato richiesto: <code>id,nome,data,luogo,prezzo_intero</code></p>
+                    <p><small>Data formato: YYYY-MM-DD HH:MM</small></p>
+                    
+                    <form id="importEventiForm">
+                        <div class="file-upload">
+                            <p>📁 Trascina qui il file CSV o clicca per selezionarlo</p>
+                            <input type="file" id="fileEventi" accept=".csv" style="margin-top: 1rem;">
+                        </div>
+                        <button type="submit" class="btn-success">Importa Eventi</button>
+                    </form>
+                    
+                    <div id="importEventiResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div class="card" id="loginSection">
+            <h2>🔐 Accesso Operatore</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nome Operatore:</label>
+                    <input type="text" id="username" placeholder="Inserisci il tuo nome" required>
+                </div>
+                <button type="submit">Accedi</button>
+            </form>
+        </div>
+
+        <!-- Main Interface -->
+        <div id="mainInterface" class="hidden">
+            <!-- Pricing Info -->
+            <div class="card" id="listino-prezzi">
+                <h2>💰 Listino Prezzi</h2>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="alert-info" style="margin: 0; text-align: center;">
+                        <strong>👨‍🎓 Studenti</strong><br>€9,00
+                    </div>
+                    <div class="alert-info" style="margin: 0; text-align: center;">
+                        <strong>👨‍🏫 Docenti</strong><br>€5,00
+                    </div>
+                    <div class="alert-info" style="margin: 0; text-align: center;">
+                        <strong>🎵 Strumentisti</strong><br>€9,00
+                    </div>
+                    <div class="alert-info" style="margin: 0; text-align: center;">
+                        <strong>🏛️ Urbinati/u18/o70</strong><br>€15,00
+                    </div>
+                    <div class="alert-info" style="margin: 0; text-align: center;">
+                        <strong>👤 Altro</strong><br>€20,00
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Verification Section -->
+            <div class="card">
+                <h2>📱 Verifica QR</h2>
+                <form id="qrForm">
+                    <div class="form-group">
+                        <label for="qrInput">Codice QR:</label>
+                        <input type="text" id="qrInput" placeholder="UMA25|tesserino_id|exp_date|signature" required>
+                    </div>
+                    <button type="submit">Verifica QR</button>
+                </form>
+                <div id="qrResult"></div>
+            </div>
+
+            <!-- Tessera Info & Vendita Section -->
+            <div class="card" id="tesseraSection" style="display: none;">
+                <h2>🎫 Informazioni Tessera</h2>
+                <div id="tesseraInfo"></div>
+                
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Vendita Evento</h3>
+                <form id="venditaForm">
+                    <div class="form-group">
+                        <label for="eventoSelect">Seleziona Evento:</label>
+                        <select id="eventoSelect" required>
+                            <option value="">-- Scegli un evento --</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-success">💰 Vendi & Convalida</button>
+                </form>
+                <div id="venditaResult"></div>
+            </div>
+
+            <!-- Report Section -->
+            <div class="card">
+                <h2>📊 Report Giornata</h2>
+                <button id="loadReportBtn" class="btn-secondary">Carica Report</button>
+                <div id="reportResult"></div>
+            </div>
+
+            <!-- Stato Tessera Section -->
+            <div class="card">
+                <h2>🔍 Stato Tessera</h2>
+                <form id="statoForm">
+                    <div class="form-group">
+                        <label for="tesseraIdInput">ID Tessera:</label>
+                        <input type="text" id="tesseraIdInput" placeholder="UUID della tessera" required>
+                    </div>
+                    <button type="submit" class="btn-secondary">Controlla Stato</button>
+                </form>
+                <div id="statoResult"></div>
+            </div>
+
+            <!-- Redenzioni Section -->
+            <div class="card">
+                <h2>📋 Ultime Redenzioni</h2>
+                <button id="loadRedBtn" class="btn-secondary">Carica Redenzioni</button>
+                <div id="redenzioniResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Revoca Tesserino -->
+    <div id="revocaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚫 Revoca Tesserino</h3>
+                <button class="close-btn" data-close-modal="revocaModal">&times;</button>
+            </div>
+            <form id="revocaForm">
+                <div class="form-group">
+                    <label for="motivoRevoca">Motivo della revoca:</label>
+                    <textarea id="motivoRevoca" rows="4" placeholder="Inserisci il motivo della revoca..." required style="width: 100%; padding: 0.75rem; border: 2px solid #d1d1d6; border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="button" class="btn-secondary btn-small" data-close-modal="revocaModal">Annulla</button>
+                    <button type="submit" class="btn-danger btn-small">Conferma Revoca</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuovo Tesserino -->
+    <div id="nuovoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ Nuovo Tesserino</h3>
+                <button class="close-btn" data-close-modal="nuovoModal">&times;</button>
+            </div>
+            <form id="nuovoForm">
+                <div class="form-group">
+                    <label for="expDateNuovo">Data di scadenza:</label>
+                    <input type="date" id="expDateNuovo" style="width: 100%; padding: 0.75rem; border: 2px solid #d1d1d6; border-radius: 8px;">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="button" class="btn-secondary btn-small" data-close-modal="nuovoModal">Annulla</button>
+                    <button type="submit" class="btn-success btn-small">Crea Tesserino</button>
+                </div>
+            </form>
+            <div id="nuovoResult"></div>
+        </div>
+    </div>
+
+    <!-- Modal Riepilogo Tesserino Creato -->
+    <div id="riepilogoTesserinoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✅ Tesserino Creato</h3>
+                <button class="close-btn" data-close-modal="riepilogoTesserinoModal">&times;</button>
+            </div>
+            <div id="riepilogoTesserinoContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: center;">
+                <button type="button" class="btn-success btn-small" id="copyQRFromModal">📋 Copia QR</button>
+                <button type="button" class="btn-secondary btn-small" data-close-modal="riepilogoTesserinoModal">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Registrazione del Service Worker per PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('🎉 Service Worker registrato con successo:', registration.scope);
+                        
+                        // Gestisce aggiornamenti del Service Worker
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed') {
+                                        if (navigator.serviceWorker.controller) {
+                                            // Nuovo service worker disponibile
+                                            console.log('📦 Nuova versione dell\'app disponibile!');
+                                            // Opzionalmente, mostra un messaggio all'utente
+                                            if (confirm('È disponibile una nuova versione dell\'app. Vuoi aggiornarla?')) {
+                                                window.location.reload();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('❌ Registrazione Service Worker fallita:', error);
+                    });
+                    
+                // Gestisce i messaggi dal Service Worker
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'CACHE_UPDATED') {
+                        console.log('💾 Cache aggiornata:', event.data.url);
+                    }
+                });
+            });
+        } else {
+            console.log('❌ Service Worker non supportato in questo browser');
+        }
+        
+        // Gestisce eventi online/offline per feedback visivo
+        window.addEventListener('online', () => {
+            console.log('🌐 Connessione ripristinata');
+            // Rimuovi eventuali indicatori di offline
+            document.body.classList.remove('offline');
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('📴 App in modalità offline');
+            // Aggiungi indicatori di offline
+            document.body.classList.add('offline');
+        });
+        
+        // Previene il comportamento di installazione automatica
+        // e mostra un prompt personalizzato
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Previene il prompt di installazione automatico
+            e.preventDefault();
+            
+            // Memorizza l'evento per usarlo successivamente
+            deferredPrompt = e;
+            
+            console.log('📱 App può essere installata');
+            
+            // Opzionalmente, mostra un pulsante di installazione personalizzato
+            // o un messaggio all'utente
+        });
+        
+        // Funzione per installare l'app manualmente
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ Utente ha accettato l\'installazione');
+                    } else {
+                        console.log('❌ Utente ha rifiutato l\'installazione');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        // Gestisce il completamento dell'installazione
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('🎉 App UMA Festival installata con successo!');
+            // Opzionalmente, mostra un messaggio di conferma
+        });
+    </script>
+</body>
+</html>

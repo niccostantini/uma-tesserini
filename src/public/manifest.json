@@ -1,0 +1,56 @@
+{
+  "name": "UMA Festival - Cassa e Verifica QR",
+  "short_name": "UMA Festival",
+  "description": "Sistema di cassa e verifica QR per il festival UMA. App installabile per operatori di cassa e controllo accessi.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#007aff",
+  "scope": "/",
+  "lang": "it",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/uma-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/uma-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "finance"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Verifica QR",
+      "short_name": "QR",
+      "description": "Accesso rapido alla verifica QR",
+      "url": "/#qr",
+      "icons": [
+        {
+          "src": "/icons/uma-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Crea Tesserino",
+      "short_name": "Nuovo",
+      "description": "Accesso rapido alla creazione tesserini",
+      "url": "/#crea",
+      "icons": [
+        {
+          "src": "/icons/uma-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

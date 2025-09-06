@@ -1,0 +1,6 @@
+id,nome,categoria,data_nascita,residenza,doc_verificato
+550e8400-e29b-41d4-a716-446655440001,Mario Rossi,studente,1995-05-15,Urbino,1
+550e8400-e29b-41d4-a716-446655440002,Anna Bianchi,docente,1980-03-22,Pesaro,1
+550e8400-e29b-41d4-a716-446655440003,Giuseppe Verdi,strumentista,1975-11-10,Milano,1
+550e8400-e29b-41d4-a716-446655440004,Maria Neri,urbinate_u18_o70,2010-08-30,Urbino,1
+550e8400-e29b-41d4-a716-446655440005,Franco Blu,altro,1990-12-05,Roma,0

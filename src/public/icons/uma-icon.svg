@@ -1,0 +1,22 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="90" fill="#007aff" stroke="#1d1d1f" stroke-width="4"/>
+  
+  <!-- Musical note -->
+  <g fill="white">
+    <!-- Note head -->
+    <ellipse cx="70" cy="130" rx="12" ry="8" transform="rotate(-20 70 130)"/>
+    <!-- Note stem -->
+    <rect x="78" y="85" width="4" height="45"/>
+    <!-- Note flag -->
+    <path d="M82 85 Q95 82 98 88 Q95 95 82 98 Z"/>
+  </g>
+  
+  <!-- Text UMA -->
+  <text x="96" y="60" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">UMA</text>
+  
+  <!-- Decorative elements -->
+  <circle cx="120" cy="110" r="3" fill="white" opacity="0.7"/>
+  <circle cx="130" cy="125" r="2" fill="white" opacity="0.7"/>
+  <circle cx="115" cy="140" r="2.5" fill="white" opacity="0.7"/>
+</svg>
