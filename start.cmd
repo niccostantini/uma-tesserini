@@ -18,6 +18,9 @@ if %errorlevel%==0 (
   goto :CHECK_RUNNING
 )
 
+:: 🔧 Crea .local se non esiste
+if not exist ".local" mkdir ".local"
+
 :: 2. Se non esiste node locale, scarica
 if not exist "%NODE_EXE%" (
   echo ❌ Node non trovato. Scarico Node.js locale >> "%LOG_FILE%"
@@ -26,7 +29,6 @@ if not exist "%NODE_EXE%" (
   move ".local\node-v%NODE_VERSION%-win-x64" "%NODE_DIR%" >nul 2>&1
   del "%NODE_ZIP%"
 )
-
 :: 3. Configura PATH locale
 set "PATH=%NODE_DIR%;%NODE_DIR%\node_modules\.bin;%PATH%"
 echo ✔ Node.js locale configurato >> "%LOG_FILE%"
