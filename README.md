@@ -25,13 +25,16 @@
 ### Installazione Rapida
 ```bash
 # 1. Clona il repository
-git clone https://github.com/username/uma-tesserini.git
+git clone https://github.com/niccostantini/uma-tesserini.git
 cd uma-tesserini
 
-# 2. Installa dipendenze
+# 2. Installa Node.js (se non è installato globalmente)
+Attiva setup.cmd per installare Node.js nella cartella locale
+
+# 3. Installa dipendenze
 npm install
 
-# 3. Avvia (setup automatico al primo avvio)
+# 4. Avvia (setup automatico al primo avvio)
 npm start
 ```
 
