@@ -173,14 +173,6 @@ EXCEPTION WHEN OTHERS THEN
   RAISE WARNING 'ux_red_ok non ricreato (possibili duplicati preesistenti): %', SQLERRM;
 END$$;
 
--- Migration: unique constraint su nome per deduplicazione import CSV senza id
-DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'persone_nome_unique'
-  ) THEN
-    ALTER TABLE persone ADD CONSTRAINT persone_nome_unique UNIQUE (nome);
-  END IF;
-END$$;
 
 -- Migration: superpoteri per persone speciali (es. presidente)
 ALTER TABLE persone ADD COLUMN IF NOT EXISTS superpoteri BOOLEAN NOT NULL DEFAULT false;
