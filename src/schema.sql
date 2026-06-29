@@ -132,6 +132,14 @@ ALTER TABLE persone DROP COLUMN IF EXISTS residenza;
 -- Migration: rimuove vincolo UNIQUE su nome (nomi duplicati sono legittimi)
 ALTER TABLE persone DROP CONSTRAINT IF EXISTS persone_nome_unique;
 
+-- Migration: tariffe speciali per evento (override sulle tariffe standard per categoria)
+CREATE TABLE IF NOT EXISTS tariffe_evento (
+  evento_id  UUID NOT NULL REFERENCES eventi(id) ON DELETE CASCADE,
+  categoria  TEXT NOT NULL,
+  prezzo     NUMERIC(10,2) NOT NULL,
+  PRIMARY KEY (evento_id, categoria)
+);
+
 -- Migration: organico degli spettacoli (many-to-many persone ↔ eventi)
 CREATE TABLE IF NOT EXISTS organico (
   persona_id UUID NOT NULL REFERENCES persone(id) ON DELETE CASCADE,

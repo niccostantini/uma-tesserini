@@ -7,476 +7,746 @@
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="Sistema di cassa e verifica QR per il festival UMA">
-    <meta name="theme-color" content="#007aff">
+    <meta name="theme-color" content="#111111">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="UMA Festival">
     
     <!-- Web App Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    
+    <link rel="manifest" href="manifest.json">
+
     <!-- Favicons -->
-    <link rel="icon" href="/icons/uma-icon-192.png" sizes="192x192" type="image/png">
-    <link rel="apple-touch-icon" href="/icons/uma-icon-192.png">
+    <link rel="icon" href="icons/uma-icon-192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="icons/uma-icon-192.png">
     
     <!-- iOS Splash Screen Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+        @font-face {
+            font-family: "Jost";
+            src: url("fonts/Jost-400.ttf") format("truetype");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
         }
-        
+
+        @font-face {
+            font-family: "Jost";
+            src: url("fonts/Jost-700.ttf") format("truetype");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ── Design tokens ───────────────────────────────────────────────────── */
+        :root {
+            --ivory:      #F7F4EE;
+            --ivory-dark: #EFECE4;
+            --surface:    #FFFFFF;
+            --black:      #111111;
+            --gray:       #6D6A65;
+            --separator:  #E5E1D8;
+            --red:        #E53935;
+            --blue:       #1976D2;
+            --yellow:     #FBC02D;
+            --green:      #2E7D32;
+            --font:       'Jost', Helvetica, Arial, sans-serif;
+            --t:          160ms ease;
+            --stripe:     linear-gradient(to right,
+                            #E53935 33.33%, #1976D2 33.33%,
+                            #1976D2 66.66%, #FBC02D 66.66%);
+        }
+
+        /* ── Reset ───────────────────────────────────────────────────────────── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ── Base ────────────────────────────────────────────────────────────── */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f7;
-            color: #1d1d1f;
-            line-height: 1.6;
+            font-family: var(--font);
+            background: var(--ivory);
+            color: var(--black);
+            line-height: 1.5;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
         }
-        
+
+        .hidden { display: none !important; }
+
+        /* ── Layout ──────────────────────────────────────────────────────────── */
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 64px;
         }
-        
-        .header {
-            background: #1d1d1f;
-            color: white;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
-            
-            #visualizzaPage, #creaPage, #importaPage {
-                color:black;
-            }
-            
+
+        /* ── Header title bar ────────────────────────────────────────────────── */
+        .header { background: var(--black); }
+
+        .header > .container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            border-bottom: 5px solid transparent;
+            border-image: var(--stripe) 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        
+
         .header h1 {
-            text-align: center;
-            font-size: 2rem;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ivory);
         }
-        
+
         .user-info {
-            text-align: center;
-            margin-top: 0.5rem;
-            opacity: 0.8;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(247,244,238,0.45);
+            margin-top: 0;
         }
-        
+
+        /* ── Navbar ──────────────────────────────────────────────────────────── */
+        .navbar { background: var(--black); }
+
+        .navbar > .container {
+            padding-top: 0;
+            padding-bottom: 0;
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            background: transparent;
+            color: rgba(247,244,238,0.5);
+            border: none;
+            padding: 16px 22px;
+            font-family: var(--font);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: auto;
+            transition: background var(--t), color var(--t);
+        }
+
+        .nav-btn:hover { background: rgba(255,255,255,0.07); color: var(--ivory); }
+
+        .nav-btn.active { background: var(--red); color: var(--ivory); }
+
+        #logoutBtn {
+            background: transparent;
+            color: rgba(247,244,238,0.35);
+            border: none;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 0 24px;
+            font-family: var(--font);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: auto;
+            align-self: stretch;
+            transition: color var(--t), background var(--t);
+        }
+
+        #logoutBtn:hover { color: var(--ivory); background: rgba(229,57,53,0.2); border-left: 1px solid rgba(255,255,255,0.1); }
+
+        /* ── Pages ───────────────────────────────────────────────────────────── */
+        .page { display: none; }
+        .page.active { display: block; padding: 40px 64px; background: var(--ivory); color: var(--black); min-height: calc(100vh - 108px); }
+
+        /* ── Main interface ──────────────────────────────────────────────────── */
+        #mainInterface { padding: 40px 0; }
+
+        /* ── Card ────────────────────────────────────────────────────────────── */
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--surface);
+            border: none;
+            padding: 40px 48px;
+            margin-bottom: 24px;
+            border-radius: 0;
+            box-shadow: none;
         }
-        
+
         .card h2 {
-            margin-bottom: 1rem;
-            color: #1d1d1f;
-            border-bottom: 2px solid #007aff;
-            padding-bottom: 0.5rem;
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            text-transform: uppercase;
+            color: var(--black);
+            margin-bottom: 40px;
+            padding-bottom: 0;
+            border-bottom: none;
         }
-        
-        .form-group {
-            margin-bottom: 1rem;
+
+        .card h3 {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gray);
+            margin-top: 32px;
+            margin-bottom: 16px;
         }
-        
+
+        .card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+
+        /* ── Form ────────────────────────────────────────────────────────────── */
+        .form-group { margin-bottom: 24px; }
+
         label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--gray);
         }
-        
-        input, select, button {
+
+        input, select, textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #d1d1d6;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: #007aff;
-        }
-        
-        button {
-            background: #007aff;
-            color: white;
+            padding: 10px 14px;
             border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
+            border-bottom: 2px solid var(--separator);
+            border-radius: 0;
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 400;
+            background: var(--ivory);
+            color: var(--black);
+            transition: border-color var(--t), background var(--t);
         }
-        
-        button:hover {
-            background: #0056b3;
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-bottom-color: var(--blue);
+            background: var(--surface);
         }
-        
-        button:disabled {
-            background: #d1d1d6;
+
+        input:disabled, select:disabled {
+            background: var(--ivory-dark);
+            color: var(--gray);
             cursor: not-allowed;
         }
-        
-        .btn-secondary {
-            background: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-        
-        .btn-success {
-            background: #28a745;
-        }
-        
-        .btn-success:hover {
-            background: #1e7e34;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-        
-        .btn-warning:hover {
-            background: #e0a800;
-        }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .tessera-info {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #007aff;
-        }
-        
-        .evento-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            border: 1px solid #d1d1d6;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .evento-item.redento {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-        
-        .table {
+
+        input[type="checkbox"] { width: auto; padding: 0; border: none; background: transparent; }
+        input[type="file"]     { background: transparent; border: none; padding: 0; font-size: 14px; cursor: pointer; }
+
+        /* ── Buttons ─────────────────────────────────────────────────────────── */
+        button {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        
-        .table th,
-        .table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #d1d1d6;
-        }
-        
-        .table th {
-            background: #f8f9fa;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 0;
+            font-family: var(--font);
+            font-size: 13px;
             font-weight: 600;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            background: var(--ivory-dark);
+            color: var(--black);
+            transition: background var(--t), color var(--t);
         }
-        
-        .status-badge {
+
+        button:hover { background: var(--black); color: var(--ivory); }
+
+        button:disabled { background: var(--separator); color: var(--gray); cursor: not-allowed; }
+        button:disabled:hover { background: var(--separator); color: var(--gray); }
+
+        .btn-secondary { background: var(--ivory-dark); color: var(--black); }
+        .btn-secondary:hover { background: var(--black); color: var(--ivory); }
+
+        .btn-success { background: var(--blue); color: #fff; }
+        .btn-success:hover { background: #1565C0; color: #fff; }
+
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:hover { background: #C62828; color: #fff; }
+
+        .btn-warning { background: var(--yellow); color: var(--black); }
+        .btn-warning:hover { background: #F9A825; color: var(--black); }
+
+        .btn-small {
+            padding: 7px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            width: auto;
             display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-weight: 600;
+            margin: 0;
         }
-        
-        .status-success {
-            background: #28a745;
-            color: white;
+
+        /* ── Alerts ──────────────────────────────────────────────────────────── */
+        .alert {
+            padding: 14px 20px;
+            border-left: 3px solid transparent;
+            border-radius: 0;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
         }
-        
-        .status-error {
-            background: #dc3545;
-            color: white;
+
+        .alert-success { background: #EBF5EB; color: #1B5E20; border-left-color: var(--green); }
+        .alert-error   { background: #FDECEC; color: #B71C1C; border-left-color: var(--red); }
+        .alert-info    { background: var(--ivory-dark); color: var(--black); border-left-color: var(--separator); }
+
+        /* ── Tables ──────────────────────────────────────────────────────────── */
+        .table { width: 100%; border-collapse: collapse; margin-top: 0; font-size: 14px; background: var(--surface); }
+
+        .table th {
+            background: var(--black);
+            color: var(--ivory);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 12px 16px;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
         }
-        
-        .status-warning {
-            background: #ffc107;
-            color: #212529;
+
+        .table th:hover { background: #2A2A2A; }
+
+        .table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--separator);
+            color: var(--black);
+            vertical-align: middle;
         }
-        
-        /* Modal styles */
+
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover td { background: #F5F2EA; }
+
+        .table-container { overflow-x: auto; margin-top: 0; }
+
+        .sort-indicator {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.4;
+            font-size: 9px;
+        }
+
+        /* ── Status badges ───────────────────────────────────────────────────── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .status-badge::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        .status-success { background: #EBF5EB; color: #2E7D32; }
+        .status-error   { background: #FDECEC; color: #C62828; }
+        .status-warning { background: #FFF8E1; color: #E65100; }
+
+        /* ── Modal ───────────────────────────────────────────────────────────── */
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(17,17,17,0.72);
+            backdrop-filter: blur(4px);
         }
-        
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
+
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+
         .modal-content {
-            background-color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 500px;
+            background: var(--surface);
+            border: none;
+            box-shadow: 0 32px 80px rgba(17,17,17,0.28);
+            border-radius: 0;
+            padding: 48px;
+            max-width: 520px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            align-items: flex-start;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 32px;
         }
-        
+
         .modal-header h3 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-transform: uppercase;
             margin: 0;
-            color: #1d1d1f;
+            color: var(--black);
         }
-        
+
         .close-btn {
-            background: none;
+            background: var(--ivory);
             border: none;
-            font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
             cursor: pointer;
             padding: 0;
-            width: auto;
-            color: #666;
+            color: var(--black);
+            font-size: 18px;
+            font-weight: 300;
+            flex-shrink: 0;
+            transition: background var(--t), color var(--t);
         }
-        
-        .close-btn:hover {
-            color: #000;
-        }
-        
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            width: auto;
-            display: inline-block;
-            margin: 0.25rem;
-        }
-        
-        .qr-display {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #d1d1d6;
-            font-family: monospace;
-            word-break: break-all;
-            margin: 1rem 0;
-        }
-        
-        /* Navigation styles */
-        .navbar {
-            background: #f8f9fa;
-            border-bottom: 1px solid #d1d1d6;
-            color:black;
-            margin-bottom: 2rem;
-            padding: 1rem 0;
-        }
-        
-        .nav-menu {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .nav-btn {
-            background: white;
-            color: #007aff;
-            border: 2px solid #007aff;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            width: auto;
-        }
-        
-        .nav-btn:hover {
-            background: #007aff;
-            color: white;
-        }
-        
-        .nav-btn.active {
-            background: #007aff;
-            color: white;
-        }
-        
-        /* Page styles */
-        .page {
-            display: none;
-        }
-        
-        .page.active {
-            display: block;
-        }
-        
-        /* Form grid */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        /* Tabs */
+
+        .close-btn:hover { background: var(--red); color: #fff; }
+
+        /* ── Tabs ────────────────────────────────────────────────────────────── */
         .tabs {
             display: flex;
-            border-bottom: 2px solid #d1d1d6;
-            margin-bottom: 1rem;
+            gap: 2px;
+            margin-bottom: 32px;
+            background: var(--ivory-dark);
+            padding: 2px;
+            width: fit-content;
+            max-width: 100%;
+            flex-wrap: wrap;
         }
-        
+
         .tab-btn {
-            background: none;
-            color: #545b62;
+            background: transparent;
+            color: var(--gray);
             border: none;
-            padding: 0.75rem 1.5rem;
+            padding: 9px 20px;
+            font-family: var(--font);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
             width: auto;
-            font-weight: 600;
+            transition: background var(--t), color var(--t);
         }
-        
-        .tab-btn:hover {
-            background: #f8f9fa;
+
+        .tab-btn:hover { background: rgba(255,255,255,0.7); color: var(--black); }
+        .tab-btn.active { background: var(--red); color: #fff; }
+
+        .tab-content { display: none; color: var(--black); }
+        .tab-content.active { display: block; }
+
+        /* ── Analytics KPI ──────────────────────────────────────────────────── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
         }
-        
-        .tab-btn.active {
-            border-bottom-color: #007aff;
-            color: #007aff;
+        .kpi-card {
+            background: var(--ivory-dark);
+            border-radius: 6px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        
-        .tab-content {
-            display: none;
-            color: black;
+        .kpi-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--gray);
         }
-        
-        .tab-content.active {
-            display: block;
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--black);
+            line-height: 1;
         }
-        
-        /* Table responsive */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 1rem;
+        .kpi-value#kpiSconto {
+            color: var(--red)
         }
-        
-        .table th {
-            cursor: pointer;
-            position: relative;
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 2px;
         }
-        
-        .table th:hover {
-            background: #e9ecef;
+        .cat-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            flex-shrink: 0;
         }
-        
-        .sort-indicator {
-            position: absolute;
-            right: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
+        @media (max-width: 600px) {
+            .kpi-grid { grid-template-columns: 1fr; }
         }
-        
-        /* File upload */
-        .file-upload {
-            border: 2px dashed #d1d1d6;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            margin: 1rem 0;
-            transition: border-color 0.2s;
-        }
-        
-        .file-upload:hover {
-            border-color: #007aff;
-        }
-        
-        .file-upload.dragover {
-            border-color: #007aff;
-            background: #f0f8ff;
-        }
-        
-        /* Search box */
+
+        /* ── Search box ──────────────────────────────────────────────────────── */
         .search-box {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: end;
+            gap: 8px;
+            margin-bottom: 32px;
+            align-items: flex-end;
+            border: none;
         }
-        
-        .search-box input {
-            flex: 1;
+
+        .search-box .form-group { margin-bottom: 0; flex: 1; }
+        .search-box input { height: 48px; }
+        .search-box button { width: auto; height: 48px; padding: 0 24px; }
+
+        /* ── File upload ─────────────────────────────────────────────────────── */
+        .file-upload {
+            background: var(--ivory);
+            border: 2px dashed var(--separator);
+            padding: 48px 32px;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--gray);
+            transition: border-color var(--t), background var(--t), color var(--t);
         }
-        
-        .search-box button {
-            width: auto;
-            padding: 0.75rem 1.5rem;
+
+        .file-upload:hover { border-color: var(--blue); background: #EEF3FB; color: var(--blue); }
+        .file-upload.dragover { border-color: var(--blue); background: #EEF3FB; border-style: solid; }
+
+        /* ── Grid ────────────────────────────────────────────────────────────── */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+
+        /* ── Tessera info ────────────────────────────────────────────────────── */
+        .tessera-info {
+            background: var(--ivory);
+            padding: 24px;
+            border-left: 3px solid var(--blue);
+            margin: 16px 0;
+        }
+
+        .tessera-info p { margin-bottom: 8px; font-size: 14px; }
+
+        /* ── Evento item ─────────────────────────────────────────────────────── */
+        .evento-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--ivory);
+            border-left: 3px solid var(--separator);
+            margin-bottom: 4px;
+            transition: border-color var(--t);
+        }
+
+        .evento-item:hover { border-left-color: var(--blue); }
+        .evento-item.redento { border-left-color: var(--blue); background: #EEF3FB; }
+        .evento-item.in-organico { border-left-color: var(--green); background: #F0F7F0; }
+        .evento-item.in-organico.omaggio-usato { border-left-color: var(--gray); background: var(--ivory-dark); opacity: .75; }
+        .btn-omaggio { background: var(--green); color: #fff; }
+        .btn-omaggio:hover { background: #1B5E20; color: #fff; }
+
+        /* ── Organico tag-selector ───────────────────────────────────────────── */
+        .organico-evento-card {
+            background: var(--surface);
+            border: 1px solid var(--separator);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+        .organico-evento-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+        .organico-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+        .organico-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #EEF3FB; color: var(--blue);
+            font-size: 13px; padding: 4px 10px 4px 12px; border-radius: 20px;
+            border: 1px solid #BBDEFB;
+        }
+        .organico-chip-rm {
+            background: none; border: none; color: var(--blue);
+            cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px;
+        }
+        .organico-chip-rm:hover { color: var(--red); }
+        .organico-add-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: none; border: 1px dashed var(--gray);
+            color: var(--gray); font-size: 13px; padding: 4px 12px;
+            border-radius: 20px; cursor: pointer; font-family: var(--font);
+        }
+        .organico-add-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .organico-dropdown {
+            position: relative; display: inline-block;
+        }
+        .organico-select-list {
+            position: absolute; top: calc(100% + 4px); left: 0; z-index: 10;
+            background: var(--surface); border: 1px solid var(--separator);
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.1);
+            min-width: 200px; max-height: 220px; overflow-y: auto;
+        }
+        .organico-select-list input {
+            width: 100%; border: none; border-bottom: 1px solid var(--separator);
+            padding: 8px 12px; font-family: var(--font); font-size: 13px;
+            border-radius: 8px 8px 0 0; outline: none;
+        }
+        .organico-option {
+            padding: 8px 14px; font-size: 13px; cursor: pointer;
+        }
+        .organico-option:hover { background: var(--ivory); }
+        .organico-empty { padding: 8px 14px; font-size: 13px; color: var(--gray); }
+
+        /* ── Card presidenziale ─────────────────────────────────────────────── */
+        .presidente-card {
+            border: 2px solid #B8860B;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fffbea 0%, #fff8d6 100%);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .presidente-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px;
+        }
+        .presidente-crown { font-size: 28px; }
+        .presidente-title { font-size: 18px; font-weight: 800; color: #7B5E00; }
+        .presidente-subtitle { font-size: 13px; color: #A07800; margin-top: 2px; }
+        .presidente-form { display: flex; flex-direction: column; gap: 10px; }
+        .presidente-form input[type=number] { width: 120px; }
+        .presidente-history {
+            margin-top: 20px; border-top: 1px solid #e8d58a; padding-top: 16px;
+        }
+        .presidente-history h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: #7B5E00; }
+        .presidente-log-item {
+            display: flex; gap: 10px; align-items: baseline;
+            font-size: 13px; padding: 4px 0; border-bottom: 1px solid #f0e5a0;
+        }
+        .presidente-log-item:last-child { border-bottom: none; }
+        .presidente-log-price {
+            font-weight: 700; min-width: 44px;
+            color: #27ae60;
+        }
+        .presidente-log-price.zero { color: #e67e22; }
+
+        /* ── PIN modal ──────────────────────────────────────────────────────── */
+        #pinModal .modal-content { max-width: 340px; }
+        #pinInput { font-size: 24px; letter-spacing: 8px; text-align: center; width: 100%; }
+
+        /* ── QR display ──────────────────────────────────────────────────────── */
+        .qr-display {
+            background: var(--ivory);
+            padding: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            word-break: break-all;
+            margin: 16px 0;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* ── Code ────────────────────────────────────────────────────────────── */
+        code {
+            background: var(--ivory-dark);
+            padding: 2px 8px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: var(--black);
+        }
+
+        /* ── Listino prezzi ──────────────────────────────────────────────────── */
+        #listino-prezzi .alert-info { border-left-width: 3px; }
+
+        /* ── Print controls ──────────────────────────────────────────────────── */
+        .print-controls {
+            background: var(--ivory);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            border: none;
+        }
+
+        .print-controls h4 {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            color: var(--gray);
+        }
+
+        #stampaProgress {
+            background: var(--yellow);
+            color: var(--black);
+            padding: 10px 16px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .container { padding: 0 20px; }
+            .page.active { padding: 24px 20px; }
+            .card { padding: 24px; }
+            .card h2 { font-size: 28px; margin-bottom: 24px; }
+            .modal-content { padding: 28px; }
+            .modal-header h3 { font-size: 22px; }
+            .search-box { flex-direction: column; gap: 8px; }
+            .search-box input, .search-box button { width: 100%; height: 44px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .nav-btn { padding: 14px 12px; font-size: 10px; }
+            .tabs { width: 100%; }
+            .tab-btn { flex: 1; text-align: center; padding: 9px 12px; }
+        }
+
+        /* ── Animation ───────────────────────────────────────────────────────── */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50%       { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="container">
-            <h1>🎵 UMA Festival - Cassa</h1>
+            <h1>UMA Festival — Cassa</h1>
             <div class="user-info" id="userInfo">
                 Non autenticato
             </div>
@@ -486,18 +756,20 @@
         <div class="navbar" id="navbar" style="display: none;">
             <div class="container">
                 <nav class="nav-menu">
-                    <button class="nav-btn active" data-page="main">💱 Cassa</button>
-                    <button class="nav-btn" data-page="visualizza">📝 Visualizza Tesserini</button>
-                    <button class="nav-btn" data-page="crea">➕ Crea Tesserino</button>
-                    <button class="nav-btn" data-page="importa">📊 Importa CSV</button>
+                    <button class="nav-btn active" data-page="main">Cassa</button>
+                    <button class="nav-btn" data-page="visualizza">Tesserini</button>
+                    <button class="nav-btn" data-page="crea">Crea</button>
+                    <button class="nav-btn" data-page="importa">Importa</button>
+                    <button class="nav-btn" data-page="admin" id="adminNavBtn" style="display:none;">Admin</button>
                 </nav>
+                <button id="logoutBtn">Esci</button>
             </div>
         </div>
 
         <!-- Visualizza Tesserini Page -->
         <div id="visualizzaPage" class="page">
             <div class="card">
-                <h2>📝 Visualizza Tesserini</h2>
+                <h2>Visualizza Tesserini</h2>
                 
                 <div class="search-box">
                     <div class="form-group" style="margin-bottom: 0; flex: 1;">
@@ -517,7 +789,7 @@
         <!-- Crea Tesserino Page -->
         <div id="creaPage" class="page">
             <div class="card">
-                <h2>➕ Crea Tesserino</h2>
+                <h2>Crea Tesserino</h2>
                 
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="seleziona-persona">Seleziona Persona Esistente</button>
@@ -526,7 +798,7 @@
                 
                 <!-- Tab: Seleziona Persona Esistente -->
                 <div id="seleziona-persona" class="tab-content active">
-                    <div class="card" style="background: #f8f9fa; margin-bottom: 1rem;">
+                    <div class="card" style="background: var(--ivory); margin-bottom: 1rem;">
                         <h4>🔍 Filtri Ricerca</h4>
                         <form id="filtriPersoneForm">
                             <div class="form-grid">
@@ -548,18 +820,23 @@
                                         <option value="docente">Docente</option>
                                         <option value="strumentista">Strumentista</option>
                                         <option value="urbinate_u18_o70">Urbinate/u18/o70</option>
+                                        <option value="staff">Staff</option>
                                         <option value="altro">Altro</option>
                                     </select>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="filtroDataNascita">Data di nascita:</label>
                                     <input type="date" id="filtroDataNascita">
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="filtroResidenza">Residenza:</label>
-                                    <input type="text" id="filtroResidenza" placeholder="Cerca per residenza...">
+                                    <label for="filtroResidenzeUrbino">Residente Urbino:</label>
+                                    <select id="filtroResidenzeUrbino">
+                                        <option value="">-- Tutti --</option>
+                                        <option value="true">Sì</option>
+                                        <option value="false">No</option>
+                                    </select>
                                 </div>
                                 
                                 <div class="form-group">
@@ -588,7 +865,7 @@
                         
                         <div class="form-group">
                             <label for="expDateCrea">Data di scadenza (opzionale):</label>
-                            <input type="date" id="expDateCrea">
+                            <input type="date" id="expDateCrea" value="2026-07-28" min="2026-07-18" max="2026-07-28">
                             <small style="color: #666;">Se vuoto, sarà impostata automaticamente a 1 anno da oggi</small>
                         </div>
                         
@@ -616,6 +893,7 @@
                                     <option value="docente">Docente</option>
                                     <option value="strumentista">Strumentista</option>
                                     <option value="urbinate_u18_o70">Urbinate/u18/o70</option>
+                                    <option value="staff">Staff</option>
                                     <option value="altro">Altro</option>
                                 </select>
                             </div>
@@ -625,12 +903,15 @@
                                 <input type="date" id="dataNascitaPersona">
                             </div>
                             
-                            <div class="form-group">
-                                <label for="residenzaPersona">Residenza:</label>
-                                <input type="text" id="residenzaPersona">
-                            </div>
                         </div>
-                        
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="residenteUrbinoPersona" style="width: auto; margin-right: 0.5rem;">
+                                Residente a Urbino
+                            </label>
+                        </div>
+
                         <div class="form-group">
                             <label>
                                 <input type="checkbox" id="docVerificatoPersona" style="width: auto; margin-right: 0.5rem;">
@@ -640,7 +921,7 @@
                         
                         <div class="form-group">
                             <label for="expDateNuovaPersona">Data scadenza tesserino (opzionale):</label>
-                            <input type="date" id="expDateNuovaPersona">
+                            <input type="date" id="expDateNuovaPersona" value="2026-07-28" min="2026-07-18" max="2026-07-28">
                             <small style="color: #666;">Se vuoto, sarà impostata automaticamente a 1 anno da oggi</small>
                         </div>
                         
@@ -653,10 +934,241 @@
             </div>
         </div>
 
+        <!-- Admin Page -->
+        <div id="adminPage" class="page">
+            <div class="card">
+                <h2>Pannello Admin</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="lista-utenti">Utenti Cassa</button>
+                    <button class="tab-btn" data-tab="crea-utente">Crea Utente</button>
+                    <button class="tab-btn" data-tab="gestione-eventi">Gestione eventi</button>
+                    <button class="tab-btn" data-tab="gestione-tariffe">Tariffe</button>
+                    <button class="tab-btn" data-tab="gestione-persone">Persone</button>
+                    <button class="tab-btn" data-tab="gestione-organico">Organico</button>
+                    <button class="tab-btn" data-tab="analytics-vendite">Vendite</button>
+                    <button class="tab-btn" data-tab="analytics-log">Log</button>
+                </div>
+
+                <div id="lista-utenti" class="tab-content active">
+                    <button id="loadUtentiBtn" class="btn-secondary btn-small" style="margin-bottom:16px;">Aggiorna lista</button>
+                    <div id="utentiResult"></div>
+                </div>
+
+                <div id="crea-utente" class="tab-content">
+                    <form id="creaUtenteForm">
+                        <div class="form-group">
+                            <label for="nuovoUsername">Username</label>
+                            <input type="text" id="nuovoUsername" placeholder="min. 3 caratteri" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nuovaPassword">Password</label>
+                            <input type="password" id="nuovaPassword" placeholder="min. 6 caratteri" required>
+                        </div>
+                        <button type="submit" class="btn-success">Crea Utente Cassa</button>
+                    </form>
+                    <div id="creaUtenteResult" style="margin-top:16px;"></div>
+                </div>
+
+                <div id="gestione-eventi" class="tab-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px;">
+                        <button id="loadEventiAdminBtn" class="btn-secondary btn-small">Aggiorna lista</button>
+                        <button id="nuovoEventoBtn" class="btn-success btn-small">+ Nuovo Evento</button>
+                    </div>
+                    <div id="eventiAdminResult"></div>
+                </div>
+
+                <div id="gestione-persone" class="tab-content">
+                    <div style="display:flex; gap:8px; margin-bottom:16px;">
+                        <input type="text" id="adminPersoneSearch" placeholder="Cerca per nome..." style="flex:1;">
+                        <button id="loadPersoneAdminBtn" class="btn-secondary btn-small">Cerca</button>
+                    </div>
+                    <div id="personeAdminResult"></div>
+                </div>
+
+                <div id="gestione-tariffe" class="tab-content">
+                    <button id="loadTariffeAdminBtn" class="btn-secondary btn-small" style="margin-bottom:16px;">Aggiorna lista</button>
+                    <div id="tariffeAdminResult"></div>
+
+                    <div style="border-top:3px solid var(--separator); margin-top:32px; padding-top:24px;">
+                        <h3 style="margin-top:0; margin-bottom:16px;">Aggiungi categoria</h3>
+                        <form id="nuovaTariffaForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="nuovaCategoriaInput">Nome categoria *</label>
+                                    <input type="text" id="nuovaCategoriaInput" placeholder="es. family, senior..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nuovoPrezzoInput">Prezzo (€) *</label>
+                                    <input type="number" id="nuovoPrezzoInput" min="0" step="0.5" placeholder="0.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nuovoColoreInput">Colore tessera</label>
+                                    <input type="color" id="nuovoColoreInput" value="#4d4c4c" style="height:38px; padding:2px 4px; cursor:pointer;">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-success">Aggiungi Categoria</button>
+                        </form>
+                        <div id="nuovaTariffaResult" style="margin-top:12px;"></div>
+                    </div>
+                </div>
+
+                <div id="gestione-organico" class="tab-content">
+                    <p style="color:var(--gray); font-size:13px; margin-bottom:20px;">
+                        Per ogni evento, aggiungi gli strumentisti che ne fanno parte. Alla cassa il pulsante "Accredita" si trasforma in "Omaggio ospite".
+                    </p>
+                    <div id="organicoResult"></div>
+                </div>
+
+                <div id="analytics-vendite" class="tab-content">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <span class="kpi-label">Tessere emesse</span>
+                            <span class="kpi-value" id="kpiTessere">—</span>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label">Incasso totale</span>
+                            <span class="kpi-value" id="kpiIncasso">—</span>
+                            <span class="kpi-sub" id="kpiIncassoSub">—</span>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label">Denaro scontato</span>
+                            <span class="kpi-value" id="kpiSconto">—</span>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label">Accrediti erogati</span>
+                            <span class="kpi-value" id="kpiAccrediti">—</span>
+                            <span class="kpi-sub" id="kpiAccreditiSub">—</span>
+                        </div>
+                        <div class="kpi-card" style="border-color:#B8860B; background:linear-gradient(135deg,#fffbea,#fff8d6);">
+                            <span class="kpi-label" style="color:#7B5E00;">👑 Accrediti presidenziali</span>
+                            <span class="kpi-value" id="kpiSpeciali" style="color:#7B5E00;">—</span>
+                            <span class="kpi-sub" id="kpiSpecialiSub">—</span>
+                        </div>
+                    </div>
+
+                    <h3 style="margin:0 0 12px;">Per categoria</h3>
+                    <div class="table-container" style="margin-bottom:32px;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Categoria</th>
+                                    <th>Tessere</th>
+                                    <th>di cui Urbino</th>
+                                    <th>Incasso</th>
+                                    <th>Mancato incasso</th>
+                                    <th>% del mancato</th>
+                                </tr>
+                            </thead>
+                            <tbody id="venditePerCategoriaBody"></tbody>
+                        </table>
+                    </div>
+
+                    <h3 style="margin:0 0 12px;">Per evento</h3>
+                    <div class="table-container" style="margin-bottom:32px;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Evento</th>
+                                    <th>Data</th>
+                                    <th>Accrediti</th>
+                                    <th>Incasso</th>
+                                    <th>Mancato incasso</th>
+                                    <th style="color:#7B5E00;">👑 Speciali</th>
+                                    <th style="color:#7B5E00;">Inc. speciali</th>
+                                </tr>
+                            </thead>
+                            <tbody id="venditePerEventoBody"></tbody>
+                        </table>
+                    </div>
+
+                    <h3 style="margin:0 0 12px;">Per giornata</h3>
+                    <div class="table-container" style="margin-bottom:32px;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Giorno</th>
+                                    <th>Accrediti</th>
+                                    <th>Annullati</th>
+                                    <th>Studenti</th>
+                                    <th>Docenti</th>
+                                    <th>Strumentisti</th>
+                                    <th>Urbinati</th>
+                                    <th style="color:#7B5E00;">👑</th>
+                                    <th>Incasso</th>
+                                    <th style="color:var(--red);">Mancato</th>
+                                </tr>
+                            </thead>
+                            <tbody id="venditePerGiornataBody"></tbody>
+                        </table>
+                    </div>
+
+                    <h3 style="margin:0 0 12px; color:#7B5E00;">👑 Accrediti presidenziali — dettaglio</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Beneficiario</th>
+                                    <th style="text-align:left;">Evento</th>
+                                    <th>Prezzo pagato</th>
+                                    <th>Operatore</th>
+                                    <th>Quando</th>
+                                </tr>
+                            </thead>
+                            <tbody id="specialiBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="analytics-log" class="tab-content">
+                    <div style="display:flex; gap:10px; margin-bottom:16px; align-items:center; flex-wrap:wrap;">
+                        <select id="filtroAzioneLog" style="width:auto; min-width:180px;">
+                            <option value="">Tutte le azioni</option>
+                            <option value="utente_creato">Utente creato</option>
+                            <option value="utente_abilitato">Utente abilitato</option>
+                            <option value="utente_disabilitato">Utente disabilitato</option>
+                            <option value="tariffa_creata">Tariffa creata</option>
+                            <option value="tariffa_modificata">Tariffa modificata</option>
+                            <option value="persona_creata">Persona creata</option>
+                            <option value="persona_eliminata">Persona eliminata</option>
+                            <option value="persona_modificata">Persona modificata</option>
+                            <option value="import_persone">Import persone</option>
+                            <option value="import_tesserini">Import tesserini</option>
+                            <option value="import_eventi">Import eventi</option>
+                            <option value="tesserino_creato">Tesserino creato</option>
+                            <option value="tesserino_revocato">Tesserino revocato</option>
+                            <option value="evento_creato">Evento creato</option>
+                            <option value="evento_modificato">Evento modificato</option>
+                            <option value="accredito_concesso">Accredito concesso</option>
+                            <option value="accredito_annullato">Accredito annullato</option>
+                            <option value="omaggio_registrato">Omaggio registrato</option>
+                            <option value="organico_aggiunto">Organico aggiunto</option>
+                            <option value="organico_rimosso">Organico rimosso</option>
+                            <option value="accredito_speciale">Accredito speciale</option>
+                        </select>
+                        <button class="btn-secondary btn-small" id="aggiornaLogBtn">Aggiorna</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left; white-space:nowrap;">Timestamp</th>
+                                    <th style="text-align:left;">Azione</th>
+                                    <th>Operatore</th>
+                                    <th>N.</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Importa CSV Page -->
         <div id="importaPage" class="page">
             <div class="card">
-                <h2>📊 Importa CSV</h2>
+                <h2>Importa CSV</h2>
                 
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="import-persone">Persone</button>
@@ -666,52 +1178,74 @@
                 
                 <!-- Tab: Import Persone -->
                 <div id="import-persone" class="tab-content active">
-                    <h3>Importa Persone da CSV</h3>
-                    <p>Formato richiesto: <code>id,nome,categoria,data_nascita,residenza,doc_verificato</code></p>
-                    <p><small>Categoria deve essere: studente, docente, strumentista, urbinate_u18_o70, altro</small></p>
-                    
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                        <h3 style="margin:0;">Importa Persone da CSV</h3>
+                        <a href="templates/persone_template.csv" download class="btn-success btn-small">Scarica template</a>
+                    </div>
+                    <p style="margin-bottom:4px;">Colonne: <code>id, nome, categoria, data_nascita, residente_urbino, doc_verificato</code></p>
+                    <ul style="margin:0 0 16px; padding-left:20px; font-size:0.85rem; color:#555;">
+                        <li><strong>id</strong> — UUID opzionale; se vuoto viene generato automaticamente</li>
+                        <li><strong>nome</strong> — obbligatorio</li>
+                        <li><strong>categoria</strong> — obbligatoria; deve corrispondere a una categoria in Tariffe</li>
+                        <li><strong>data_nascita</strong> — opzionale, formato YYYY-MM-DD</li>
+                        <li><strong>residente_urbino</strong> — opzionale, <code>true</code> / <code>false</code></li>
+                        <li><strong>doc_verificato</strong> — opzionale, <code>true</code> / <code>false</code></li>
+                    </ul>
                     <form id="importPersoneForm">
                         <div class="file-upload">
-                            <p>📁 Trascina qui il file CSV o clicca per selezionarlo</p>
-                            <input type="file" id="filePersone" accept=".csv" style="margin-top: 1rem;">
+                            <p>Trascina qui il file CSV o clicca per selezionarlo</p>
+                            <input type="file" id="filePersone" accept=".csv" style="margin-top:1rem;">
                         </div>
                         <button type="submit" class="btn-success">Importa Persone</button>
                     </form>
-                    
                     <div id="importPersoneResult"></div>
                 </div>
-                
+
                 <!-- Tab: Import Tesserini -->
                 <div id="import-tesserini" class="tab-content">
-                    <h3>Importa Tesserini da CSV</h3>
-                    <p>Formato richiesto: <code>id,persona_id,stato,qr_text,exp_date</code></p>
-                    <p><small>Stato deve essere: attivo, revocato</small></p>
-                    
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                        <h3 style="margin:0;">Importa Tesserini da CSV</h3>
+                        <a href="templates/tesserini_template.csv" download class="btn-success btn-small">Scarica template</a>
+                    </div>
+                    <p style="margin-bottom:4px;">Colonne: <code>id, persona_id, stato, qr_text, exp_date</code></p>
+                    <ul style="margin:0 0 16px; padding-left:20px; font-size:0.85rem; color:#555;">
+                        <li><strong>id</strong> — UUID opzionale; se vuoto viene generato automaticamente</li>
+                        <li><strong>persona_id</strong> — obbligatorio; UUID di una persona già presente nel DB</li>
+                        <li><strong>stato</strong> — opzionale, <code>attivo</code> / <code>revocato</code> (default: attivo)</li>
+                        <li><strong>qr_text</strong> — obbligatorio; stringa QR generata dal sistema</li>
+                        <li><strong>exp_date</strong> — obbligatorio, formato YYYY-MM-DD</li>
+                    </ul>
                     <form id="importTesseriniForm">
                         <div class="file-upload">
-                            <p>📁 Trascina qui il file CSV o clicca per selezionarlo</p>
-                            <input type="file" id="fileTesserini" accept=".csv" style="margin-top: 1rem;">
+                            <p>Trascina qui il file CSV o clicca per selezionarlo</p>
+                            <input type="file" id="fileTesserini" accept=".csv" style="margin-top:1rem;">
                         </div>
                         <button type="submit" class="btn-success">Importa Tesserini</button>
                     </form>
-                    
                     <div id="importTesseriniResult"></div>
                 </div>
-                
+
                 <!-- Tab: Import Eventi -->
                 <div id="import-eventi" class="tab-content">
-                    <h3>Importa Eventi da CSV</h3>
-                    <p>Formato richiesto: <code>id,nome,data,luogo,prezzo_intero</code></p>
-                    <p><small>Data formato: YYYY-MM-DD HH:MM</small></p>
-                    
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                        <h3 style="margin:0;">Importa Eventi da CSV</h3>
+                        <a href="templates/eventi_template.csv" download class="btn-success btn-small">Scarica template</a>
+                    </div>
+                    <p style="margin-bottom:4px;">Colonne: <code>id, nome, data, luogo, prezzo_intero</code></p>
+                    <ul style="margin:0 0 16px; padding-left:20px; font-size:0.85rem; color:#555;">
+                        <li><strong>id</strong> — UUID opzionale; se vuoto viene generato automaticamente</li>
+                        <li><strong>nome</strong> — obbligatorio</li>
+                        <li><strong>data</strong> — obbligatoria, formato <code>YYYY-MM-DD HH:MM</code></li>
+                        <li><strong>luogo</strong> — opzionale</li>
+                        <li><strong>prezzo_intero</strong> — opzionale, prezzo base in euro (default: 20.00)</li>
+                    </ul>
                     <form id="importEventiForm">
                         <div class="file-upload">
-                            <p>📁 Trascina qui il file CSV o clicca per selezionarlo</p>
-                            <input type="file" id="fileEventi" accept=".csv" style="margin-top: 1rem;">
+                            <p>Trascina qui il file CSV o clicca per selezionarlo</p>
+                            <input type="file" id="fileEventi" accept=".csv" style="margin-top:1rem;">
                         </div>
                         <button type="submit" class="btn-success">Importa Eventi</button>
                     </form>
-                    
                     <div id="importEventiResult"></div>
                 </div>
             </div>
@@ -721,104 +1255,81 @@
     <div class="container">
         <!-- Login Section -->
         <div class="card" id="loginSection">
-            <h2>🔐 Accesso Operatore</h2>
+            <h2>Accesso</h2>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="username">Nome Operatore:</label>
-                    <input type="text" id="username" placeholder="Inserisci il tuo nome" required>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" placeholder="Username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
                 </div>
                 <button type="submit">Accedi</button>
             </form>
+            <div id="loginResult" style="margin-top: 1rem;"></div>
         </div>
 
         <!-- Main Interface -->
         <div id="mainInterface" class="hidden">
             <!-- Pricing Info -->
             <div class="card" id="listino-prezzi">
-                <h2>💰 Listino Prezzi</h2>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-                    <div class="alert-info" style="margin: 0; text-align: center;">
-                        <strong>👨‍🎓 Studenti</strong><br>€9,00
-                    </div>
-                    <div class="alert-info" style="margin: 0; text-align: center;">
-                        <strong>👨‍🏫 Docenti</strong><br>€5,00
-                    </div>
-                    <div class="alert-info" style="margin: 0; text-align: center;">
-                        <strong>🎵 Strumentisti</strong><br>€9,00
-                    </div>
-                    <div class="alert-info" style="margin: 0; text-align: center;">
-                        <strong>🏛️ Urbinati/u18/o70</strong><br>€15,00
-                    </div>
-                    <div class="alert-info" style="margin: 0; text-align: center;">
-                        <strong>👤 Altro</strong><br>€20,00
-                    </div>
-                </div>
+                <h2>Listino Prezzi</h2>
+                <div id="listino-prezzi-grid" class="grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));"></div>
             </div>
 
             <!-- QR Verification Section -->
             <div class="card">
-                <h2>📱 Verifica QR</h2>
+                <h2>Verifica QR</h2>
                 <form id="qrForm">
                     <div class="form-group">
                         <label for="qrInput">Codice QR:</label>
-                        <input type="text" id="qrInput" placeholder="UMA25|tesserino_id|exp_date|signature" required>
+                        <input type="text" id="qrInput" placeholder="UMA-26:tesserino_id:exp_date:signature" required>
                     </div>
                     <button type="submit">Verifica QR</button>
                 </form>
                 <div id="qrResult"></div>
             </div>
 
-            <!-- Tessera Info & Vendita Section -->
+            <!-- Tessera Info & Accredito Section -->
             <div class="card" id="tesseraSection" style="display: none;">
-                <h2>🎫 Informazioni Tessera</h2>
+                <h2>Tessera</h2>
                 <div id="tesseraInfo"></div>
-                
-                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Vendita Evento</h3>
-                <form id="venditaForm">
-                    <div class="form-group">
-                        <label for="eventoSelect">Seleziona Evento:</label>
-                        <select id="eventoSelect" required>
-                            <option value="">-- Scegli un evento --</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-success">💰 Vendi & Convalida</button>
-                </form>
-                <div id="venditaResult"></div>
             </div>
 
-            <!-- Report Section -->
-            <div class="card">
-                <h2>📊 Report Giornata</h2>
-                <button id="loadReportBtn" class="btn-secondary">Carica Report</button>
-                <div id="reportResult"></div>
-            </div>
 
-            <!-- Stato Tessera Section -->
+            <!-- Ultimi Accrediti Section -->
             <div class="card">
-                <h2>🔍 Stato Tessera</h2>
-                <form id="statoForm">
-                    <div class="form-group">
-                        <label for="tesseraIdInput">ID Tessera:</label>
-                        <input type="text" id="tesseraIdInput" placeholder="UUID della tessera" required>
-                    </div>
-                    <button type="submit" class="btn-secondary">Controlla Stato</button>
-                </form>
-                <div id="statoResult"></div>
-            </div>
-
-            <!-- Redenzioni Section -->
-            <div class="card">
-                <h2>📋 Ultime Redenzioni</h2>
-                <button id="loadRedBtn" class="btn-secondary">Carica Redenzioni</button>
+                <h2>Ultimi Accrediti</h2>
+                <button id="loadRedBtn" class="btn-secondary">Carica Accrediti</button>
                 <div id="redenzioniResult"></div>
             </div>
-            
-            <!-- Annulla Redenzioni Section -->
+
+            <!-- Annulla Accrediti Section -->
             <div class="card">
-                <h2>❌ Annulla Redenzioni</h2>
-                <p><small>Annulla redenzioni degli ultimi 7 giorni in caso di errore</small></p>
-                <button id="loadAnnullabiliBtn" class="btn-warning">Carica Redenzioni Annullabili</button>
+                <h2>Annulla Accrediti</h2>
+                <p style="font-size:13px; color:var(--gray); margin-bottom:12px;">Annulla accrediti degli ultimi 7 giorni in caso di errore</p>
+                <button id="loadAnnullabiliBtn" class="btn-warning">Carica Accrediti Annullabili</button>
                 <div id="annullabiliResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PIN Presidente -->
+    <div id="pinModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Conferma PIN</h3>
+                <button class="close-btn" data-close-modal="pinModal">&times;</button>
+            </div>
+            <p style="font-size:14px; color:var(--gray); margin-bottom:16px;">Inserisci il PIN presidenziale per confermare l'operazione.</p>
+            <div class="form-group">
+                <input type="password" id="pinInput" maxlength="10" placeholder="• • • •" autocomplete="off" inputmode="numeric" />
+            </div>
+            <div id="pinError" class="alert alert-error" style="display:none; margin-top:8px;"></div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="button" class="btn-secondary btn-small" data-close-modal="pinModal">Annulla</button>
+                <button type="button" id="pinConfirmBtn" class="btn-primary btn-small">Conferma</button>
             </div>
         </div>
     </div>
@@ -827,16 +1338,16 @@
     <div id="revocaModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🚫 Revoca Tesserino</h3>
+                <h3>Revoca Tesserino</h3>
                 <button class="close-btn" data-close-modal="revocaModal">&times;</button>
             </div>
             <form id="revocaForm">
                 <div class="form-group">
-                    <label for="motivoRevoca">Motivo della revoca:</label>
-                    <textarea id="motivoRevoca" rows="4" placeholder="Inserisci il motivo della revoca..." required style="width: 100%; padding: 0.75rem; border: 2px solid #d1d1d6; border-radius: 8px; resize: vertical;"></textarea>
+                    <label for="motivoRevoca">Motivo della revoca</label>
+                    <textarea id="motivoRevoca" rows="4" placeholder="Inserisci il motivo della revoca..." required style="resize:vertical;"></textarea>
                 </div>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <button type="button" class="btn-secondary btn-small" data-close-modal="revocaModal">Annulla</button>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" class="btn-secondary btn-small" data-close-modal="revocaModal">Annulla</button>
                     <button type="submit" class="btn-danger btn-small">Conferma Revoca</button>
                 </div>
             </form>
@@ -847,20 +1358,134 @@
     <div id="nuovoModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>➕ Nuovo Tesserino</h3>
+                <h3>Nuovo Tesserino</h3>
                 <button class="close-btn" data-close-modal="nuovoModal">&times;</button>
             </div>
             <form id="nuovoForm">
                 <div class="form-group">
-                    <label for="expDateNuovo">Data di scadenza:</label>
-                    <input type="date" id="expDateNuovo" style="width: 100%; padding: 0.75rem; border: 2px solid #d1d1d6; border-radius: 8px;">
+                    <label for="expDateNuovo">Data di scadenza</label>
+                    <input type="date" id="expDateNuovo" value="2026-07-28" min="2026-07-18" max="2026-07-28">
                 </div>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <button type="button" class="btn-secondary btn-small" data-close-modal="nuovoModal">Annulla</button>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" class="btn-secondary btn-small" data-close-modal="nuovoModal">Annulla</button>
                     <button type="submit" class="btn-success btn-small">Crea Tesserino</button>
                 </div>
             </form>
             <div id="nuovoResult"></div>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Tessera (nome + categoria persona) -->
+    <div id="modificaTesseraModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifica Tessera</h3>
+                <button class="close-btn" data-close-modal="modificaTesseraModal">&times;</button>
+            </div>
+            <form id="modificaTesseraForm">
+                <input type="hidden" id="modificaPersonaId">
+                <div class="form-group">
+                    <label for="modificaNome">Nome e Cognome *</label>
+                    <input type="text" id="modificaNome" required>
+                </div>
+                <div class="form-group">
+                    <label for="modificaCategoria">Categoria di sconto *</label>
+                    <select id="modificaCategoria" required>
+                        <option value="">-- Seleziona --</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" class="btn-secondary btn-small" data-close-modal="modificaTesseraModal">Annulla</button>
+                    <button type="submit" class="btn-success btn-small">Salva</button>
+                </div>
+            </form>
+            <div id="modificaTesseraResult" style="margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Tariffa (prezzo per categoria) -->
+    <div id="tariffaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifica Prezzo</h3>
+                <button class="close-btn" data-close-modal="tariffaModal">&times;</button>
+            </div>
+            <form id="tariffaForm">
+                <input type="hidden" id="tariffaCategoria">
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <input type="text" id="tariffaCategoriaDisplay" disabled>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tariffaPrezzo">Prezzo (€) *</label>
+                        <input type="number" id="tariffaPrezzo" min="0" step="0.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tariffaColore">Colore tessera</label>
+                        <input type="color" id="tariffaColore" value="#4d4c4c" style="height:38px; padding:2px 4px; cursor:pointer;">
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" class="btn-secondary btn-small" data-close-modal="tariffaModal">Annulla</button>
+                    <button type="submit" class="btn-success btn-small">Salva</button>
+                </div>
+            </form>
+            <div id="tariffaResult" style="margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Evento (crea / modifica) -->
+    <div id="eventoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="eventoModalTitle">Nuovo Evento</h3>
+                <button class="close-btn" data-close-modal="eventoModal">&times;</button>
+            </div>
+            <form id="eventoForm">
+                <input type="hidden" id="eventoId">
+                <div class="form-group">
+                    <label for="eventoNome">Nome *</label>
+                    <input type="text" id="eventoNome" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventoData">Data e ora *</label>
+                    <input type="datetime-local" id="eventoData" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventoLuogo">Luogo</label>
+                    <input type="text" id="eventoLuogo">
+                </div>
+                <div class="form-group">
+                    <label for="eventoPrezzo">Prezzo base (€) *</label>
+                    <input type="number" id="eventoPrezzo" min="0" step="0.5" required>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" class="btn-secondary btn-small" data-close-modal="eventoModal">Annulla</button>
+                    <button type="submit" class="btn-success btn-small">Salva</button>
+                </div>
+            </form>
+            <div id="eventoResult" style="margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Prezzi Speciali Evento -->
+    <div id="prezziSpecialiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="prezziSpecialiTitle">Prezzi speciali</h3>
+                <button class="close-btn" data-close-modal="prezziSpecialiModal">&times;</button>
+            </div>
+            <p style="margin:0 0 16px; color:var(--text-muted); font-size:0.9em;">
+                Lascia vuoto per usare il prezzo standard della categoria.
+            </p>
+            <input type="hidden" id="prezziSpecialiEventoId">
+            <div id="prezziSpecialiTable"></div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="button" class="btn-secondary btn-small" data-close-modal="prezziSpecialiModal">Annulla</button>
+                <button type="button" class="btn-success btn-small" id="salvaPrezziSpecialiBtn">Salva prezzi speciali</button>
+            </div>
+            <div id="prezziSpecialiResult" style="margin-top:12px;"></div>
         </div>
     </div>
 
@@ -883,100 +1508,12 @@
 
     <script src="script.js"></script>
     
-    <!-- PWA Service Worker Registration -->
     <script>
-        // Registrazione del Service Worker per PWA
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then((registration) => {
-                        console.log('🎉 Service Worker registrato con successo:', registration.scope);
-                        
-                        // Gestisce aggiornamenti del Service Worker
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            if (newWorker) {
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed') {
-                                        if (navigator.serviceWorker.controller) {
-                                            // Nuovo service worker disponibile
-                                            console.log('📦 Nuova versione dell\'app disponibile!');
-                                            // Opzionalmente, mostra un messaggio all'utente
-                                            if (confirm('È disponibile una nuova versione dell\'app. Vuoi aggiornarla?')) {
-                                                window.location.reload();
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    })
-                    .catch((error) => {
-                        console.log('❌ Registrazione Service Worker fallita:', error);
-                    });
-                    
-                // Gestisce i messaggi dal Service Worker
-                navigator.serviceWorker.addEventListener('message', (event) => {
-                    if (event.data && event.data.type === 'CACHE_UPDATED') {
-                        console.log('💾 Cache aggiornata:', event.data.url);
-                    }
-                });
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => r.unregister());
             });
-        } else {
-            console.log('❌ Service Worker non supportato in questo browser');
         }
-        
-        // Gestisce eventi online/offline per feedback visivo
-        window.addEventListener('online', () => {
-            console.log('🌐 Connessione ripristinata');
-            // Rimuovi eventuali indicatori di offline
-            document.body.classList.remove('offline');
-        });
-        
-        window.addEventListener('offline', () => {
-            console.log('📴 App in modalità offline');
-            // Aggiungi indicatori di offline
-            document.body.classList.add('offline');
-        });
-        
-        // Previene il comportamento di installazione automatica
-        // e mostra un prompt personalizzato
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Previene il prompt di installazione automatico
-            e.preventDefault();
-            
-            // Memorizza l'evento per usarlo successivamente
-            deferredPrompt = e;
-            
-            console.log('📱 App può essere installata');
-            
-            // Opzionalmente, mostra un pulsante di installazione personalizzato
-            // o un messaggio all'utente
-        });
-        
-        // Funzione per installare l'app manualmente
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ Utente ha accettato l\'installazione');
-                    } else {
-                        console.log('❌ Utente ha rifiutato l\'installazione');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-        
-        // Gestisce il completamento dell'installazione
-        window.addEventListener('appinstalled', (evt) => {
-            console.log('🎉 App UMA Festival installata con successo!');
-            // Opzionalmente, mostra un messaggio di conferma
-        });
     </script>
 </body>
 </html>
