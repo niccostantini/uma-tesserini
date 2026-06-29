@@ -13,6 +13,9 @@ let currentSort = { field: 'created_at', order: 'desc' };
 let tessereData = [];
 let selectedTessere = new Set(); // Track selected tessere IDs
 let isStampaInProgress = false;
+let _tesseraCorrente     = null;
+let _eventiCompleti      = [];
+let _prezzoLabelCorrente = '';
 
 // DOM elements
 const loginSection = document.getElementById('loginSection');
@@ -372,6 +375,11 @@ async function loadTesseraInfo(tesseraId) {
             } catch { /* usa prezzoLabel standard come fallback */ }
         }));
 
+        // Salva stato per il filtro client-side
+        _tesseraCorrente     = tessera;
+        _eventiCompleti      = eventi;
+        _prezzoLabelCorrente = prezzoLabel;
+
         const infoHtml = `
             <div class="tessera-info">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
@@ -394,11 +402,19 @@ async function loadTesseraInfo(tesseraId) {
                 </div>
             </div>
 
-            <h3 style="margin-top:24px; margin-bottom:12px;">EVENTI</h3>
-            ${eventi.length === 0
-                ? `<div class="alert alert-info">Nessun evento configurato — aggiungili dalla scheda Admin.</div>`
-                : events_html(eventi, tessera.stato, prezzoLabel)
-            }
+            <h3 style="margin-top:24px; margin-bottom:8px;">EVENTI</h3>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center;">
+                <input type="text" id="filtroKeyword"  placeholder="Parola chiave" style="flex:2; min-width:130px;">
+                <input type="date" id="filtroData"     style="flex:1; min-width:130px;">
+                <input type="time" id="filtroOra"      style="flex:0 0 auto; min-width:100px;">
+                <input type="text" id="filtroLocation" placeholder="Location"      style="flex:1; min-width:110px;">
+            </div>
+            <div id="eventiListContainer">
+                ${eventi.length === 0
+                    ? `<div class="alert alert-info">Nessun evento configurato — aggiungili dalla scheda Admin.</div>`
+                    : events_html(eventi, tessera.stato, prezzoLabel)
+                }
+            </div>
             <div id="venditaResult" style="margin-top:16px;"></div>
         `;
 
@@ -994,6 +1010,51 @@ function setupTesseraButtons(tessera) {
                 btn.dataset.eventoNome.replace(/&quot;/g, '"')
             );
         });
+    });
+
+    // Filtri eventi
+    ['filtroKeyword', 'filtroData', 'filtroOra', 'filtroLocation'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', applyEventiFilter);
+    });
+}
+
+function applyEventiFilter() {
+    const keyword  = (document.getElementById('filtroKeyword')?.value  || '').trim().toLowerCase();
+    const data     = (document.getElementById('filtroData')?.value     || '');
+    const ora      = (document.getElementById('filtroOra')?.value      || '');
+    const location = (document.getElementById('filtroLocation')?.value || '').trim().toLowerCase();
+
+    const filtered = _eventiCompleti.filter(ev => {
+        if (keyword  && !ev.nome.toLowerCase().includes(keyword))        return false;
+        if (data     && !ev.data.startsWith(data))                       return false;
+        if (ora      && !ev.data.includes(ora))                          return false;
+        if (location && !(ev.luogo || '').toLowerCase().includes(location)) return false;
+        return true;
+    });
+
+    const container = document.getElementById('eventiListContainer');
+    if (!container) return;
+    container.innerHTML = filtered.length > 0
+        ? events_html(filtered, _tesseraCorrente.stato, _prezzoLabelCorrente)
+        : '<div class="alert alert-info">Nessun evento corrisponde ai filtri.</div>';
+    rewireEventiButtons();
+}
+
+function rewireEventiButtons() {
+    document.querySelectorAll('.accredita-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+            handleVenditaForEvent(btn.dataset.eventoId, btn.dataset.eventoNome.replace(/&quot;/g, '"'))
+        );
+    });
+    document.querySelectorAll('.omaggio-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+            handleOmaggio(btn.dataset.strumentistaId, btn.dataset.eventoId, btn.dataset.eventoNome.replace(/&quot;/g, '"'))
+        );
+    });
+    document.querySelectorAll('.da-terzi-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+            toggleDaTerziInput(btn.dataset.eventoId, btn.dataset.eventoNome.replace(/&quot;/g, '"'))
+        );
     });
 }
 
